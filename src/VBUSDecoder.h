@@ -26,14 +26,22 @@
 #define FSeptet 4				// Septet byte in Frame
 #define SENSORNOTCONNECTED 8888 // Sometimes this might be 888 instead.
 
+float floatTempFrom10e(int16_t);
+
 class VBUSDecoder
 {
   public:
 	bool initialise();
-	float getS1Temp();
-	float getS2Temp();
-	float getS3Temp();
-	float getS4Temp();
+	int16_t getS1Temp();
+	int16_t getS2Temp();
+	int16_t getS3Temp();
+	int16_t getS4Temp();
+
+	float getS1TempFloat();
+	float getS2TempFloat();
+	float getS3TempFloat();
+	float getS4TempFloat();
+
 	bool readSensor();
 	bool getP1Status();
 	bool getP2Status();
@@ -44,7 +52,8 @@ class VBUSDecoder
 	int getP2OperatingHours();
 	int getScheme();
 	String getSystemTime();
-	uint32_t getHeatQuantity();
+
+	bool printFrame(uint8_t frameNum);
 
   protected:
   private:
@@ -56,15 +65,15 @@ class VBUSDecoder
 	bool relay3WayValve = false;
 	bool SystemAlert = false;
 
-	float sensor1Temp;
-	float sensor2Temp;
-	float sensor3Temp;
-	float sensor4Temp;
+	int16_t sensor1Temp;
+	int16_t sensor2Temp;
+	int16_t sensor3Temp;
+	int16_t sensor4Temp;
 
-	float sensor1TempMax;
-	float sensor2TempMax;
-	float sensor3TempMax;
-	float sensor4TempMax;
+	int16_t sensor1TempMax;
+	int16_t sensor2TempMax;
+	int16_t sensor3TempMax;
+	int16_t sensor4TempMax;
 
 	// Conergy DT5 specific
 	char PumpSpeed1; // in  %
@@ -110,7 +119,7 @@ class VBUSDecoder
 
 	void clearMaxValues();
 	bool vBusRead();
-	float calcTemp(int Byte1, int Byte2);
+	int16_t calcTemp(int Byte1, int Byte2);
 	void InjectSeptet(unsigned char *Buffer, int Offset, int Length);
 	void PrintHex8(unsigned char *data, uint8_t length); // prints 8-bit data in hex with leading zeroes
 	unsigned char VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length);

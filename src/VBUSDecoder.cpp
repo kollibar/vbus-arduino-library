@@ -12,15 +12,26 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
 #include "VBUSDecoder.h"
-#define DEBUG 0
+#define DEBUG 1
+
+/**
+ * renvoi une température donnée sous forme de int 1/10e de degrée en float
+*/
+float floatTempFrom10e(int16_t temp10e){
+  if( temp10e == SENSORNOTCONNECTED )
+    return 0;
+
+  return (((float)temp10e)/10.0);
+}
+
 
 // Clear all maximum values
 void VBUSDecoder::clearMaxValues()
 {
-  sensor1TempMax = 0.0;
-  sensor2TempMax = 0.0;
-  sensor3TempMax = 0.0;
-  sensor4TempMax = 0.0;
+  sensor1TempMax = 0;
+  sensor2TempMax = 0;
+  sensor3TempMax = 0;
+  sensor4TempMax = 0;
 }
 
 bool VBUSDecoder::initialise()
@@ -31,25 +42,44 @@ bool VBUSDecoder::initialise()
   return true;
 } // end void initialise()
 
-float VBUSDecoder::getS1Temp()
+int16_t VBUSDecoder::getS1Temp()
 {
-
   return sensor1Temp;
 }
 
-float VBUSDecoder::getS2Temp()
+int16_t VBUSDecoder::getS2Temp()
 {
   return sensor2Temp;
 }
 
-float VBUSDecoder::getS3Temp()
+int16_t VBUSDecoder::getS3Temp()
 {
   return sensor3Temp;
 }
 
-float VBUSDecoder::getS4Temp()
+int16_t VBUSDecoder::getS4Temp()
 {
   return sensor4Temp;
+}
+
+float VBUSDecoder::getS1TempFloat()
+{
+  return floatTempFrom10e(sensor1Temp);
+}
+
+float VBUSDecoder::getS2TempFloat()
+{
+  return floatTempFrom10e(sensor2Temp);
+}
+
+float VBUSDecoder::getS3TempFloat()
+{
+  return floatTempFrom10e(sensor3Temp);
+}
+
+float VBUSDecoder::getS4TempFloat()
+{
+  return floatTempFrom10e(sensor4Temp);
 }
 
 bool VBUSDecoder::getP1Status()
@@ -111,48 +141,43 @@ String VBUSDecoder::getSystemTime()
   return toReturn;
 }
 
-uint32_t VBUSDecoder::getHeatQuantity()
-{
-  return HeatQuantity;
-}
-
 bool VBUSDecoder::readSensor()
 {
 
   if (vBusRead())
   {
 #if DEBUG
-    Serial.println("------Decoded VBus data------");
-    Serial.print("Destination: ");
+    Serial.println(F("------Decoded VBus data------"));
+    Serial.print(F("Destination: "));
     Serial.println(Destination_address, HEX);
-    Serial.print("Source: ");
+    Serial.print(F("Source: "));
     Serial.println(Source_address, HEX);
-    Serial.print("Protocol Version: ");
+    Serial.print(F("Protocol Version: "));
     Serial.println(ProtocolVersion);
-    Serial.print("Command: ");
+    Serial.print(F("Command: "));
     Serial.println(Command, HEX);
-    Serial.print("Framecount: ");
+    Serial.print(F("Framecount: "));
     Serial.println(Framecnt);
-    Serial.print("Checksum: ");
+    Serial.print(F("Checksum: "));
     Serial.println(Checksum);
-    Serial.println("------Values------");
-    Serial.print("Sensor 1: ");
+    Serial.println(F("------Values------"));
+    Serial.print(F("Sensor 1: "));
     Serial.println(sensor1Temp);
-    Serial.print("Sensor 2: ");
+    Serial.print(F("Sensor 2: "));
     Serial.println(sensor2Temp);
-    Serial.print("Sensor 3: ");
+    Serial.print(F("Sensor 3: "));
     Serial.println(sensor3Temp);
-    Serial.print("Sensor 4: ");
+    Serial.print(F("Sensor 4: "));
     Serial.println(sensor4Temp);
-    Serial.print("Relay 1: ");
+    Serial.print(F("Relay 1: "));
     Serial.println(Relay1, DEC);
-    Serial.print("Relay 2: ");
+    Serial.print(F("Relay 2: "));
     Serial.println(Relay2, DEC);
-    Serial.print("Minute of Day: ");
+    Serial.print(F("Minute of Day: "));
     Serial.println(SystemTime);
-    Serial.print("Notifications: ");
+    Serial.print(F("Notifications: "));
     Serial.println(SystemNotification, DEC);
-    Serial.println("------END------");
+    Serial.println(F("------END------"));
 #endif
 
   } //end VBusRead
@@ -204,7 +229,7 @@ bool VBUSDecoder::readSensor()
 // The following is needed for decoding the data
 void VBUSDecoder::InjectSeptet(unsigned char *Buffer, int Offset, int Length)
 {
-  for (unsigned int i = 0; i < Length; i++)
+  for (int i = 0; i < Length; i++)
   {
     if (Septet & (1 << i))
     {
@@ -246,11 +271,12 @@ bool VBUSDecoder::vBusRead()
     if (Serial1.available())
     {
       c = Serial1.read();
+
       if (c == sync1)
       {
 
 #if DEBUG
-// Serial.println("Sync found");
+// Serial.println(F("Sync found"));
 #endif
 
         if (start)
@@ -284,7 +310,7 @@ bool VBUSDecoder::vBusRead()
     {
       quit = true;
 #if DEBUG
-//   Serial.print("Timeout: ");
+//   Serial.print(F("Timeout: "));
 //   Serial.println(lastTimeTimer);
 #endif
     }
@@ -305,20 +331,20 @@ bool VBUSDecoder::vBusRead()
     Framecnt = Buffer[8];
     Checksum = Buffer[9];
 #if DEBUG
-    Serial.println("---------------");
-    Serial.print("Destination: ");
+    Serial.println(F("---------------"));
+    Serial.print(F("Destination: "));
     Serial.println(Destination_address, HEX);
-    Serial.print("Source: ");
+    Serial.print(F("Source: "));
     Serial.println(Source_address, HEX);
-    Serial.print("Protocol Version: ");
+    Serial.print(F("Protocol Version: "));
     Serial.println(ProtocolVersion);
-    Serial.print("Command: ");
+    Serial.print(F("Command: "));
     Serial.println(Command, HEX);
-    Serial.print("Framecount: ");
+    Serial.print(F("Framecount: "));
     Serial.println(Framecnt);
-    Serial.print("Checksum: ");
+    Serial.print(F("Checksum: "));
     Serial.println(Checksum);
-    Serial.println("---------------");
+    Serial.println(F("---------------"));
 
 #endif
     // Only analyse Commands 0x100 = Packet Contains data for slave
@@ -333,9 +359,9 @@ bool VBUSDecoder::vBusRead()
       if (Source_address == 0x3271)
       {
 #if DEBUG
-        Serial.println("---------------");
-        Serial.println("Now decoding for 0x3271");
-        Serial.println("---------------");
+        Serial.println(F("---------------"));
+        Serial.println(F("Now decoding for 0x3271"));
+        Serial.println(F("---------------"));
 
 #endif
 
@@ -438,9 +464,9 @@ bool VBUSDecoder::vBusRead()
       else if (Source_address == 0x5611)
       {
 #if DEBUG
-        Serial.println("---------------");
-        Serial.println("Now decoding for 0x5611");
-        Serial.println("---------------");
+        Serial.println(F("---------------"));
+        Serial.println(F("Now decoding for 0x5611"));
+        Serial.println(F("---------------"));
 #endif
         // Frame info for the Resol Deltatherm FK and Oranier Aquacontrol III
         // check VBusprotocol specification for other products
@@ -535,9 +561,9 @@ bool VBUSDecoder::vBusRead()
       {
 
 #if DEBUG
-        Serial.println("---------------");
-        Serial.println("Now decoding for DeltaSol C 0x4212");
-        Serial.println("---------------");
+        Serial.println(F("---------------"));
+        Serial.println(F("Now decoding for DeltaSol C 0x4212"));
+        Serial.println(F("---------------"));
 #endif
         //*******************  Frame 1  *******************
         F = FOffset;
@@ -597,124 +623,7 @@ bool VBUSDecoder::vBusRead()
         ///******************* End of frames ****************
 
       } // end 0x4212 DeltaSol C
-      	  else if (Source_address == 0x2211)
-      {
-  
-        // Frame info for the Resol DeltaSol CS Plus (Joule)
-        // check VBusprotocol specification for other products
-        // This library is made for the Resol DeltaSol CS Plus (0x2211)
-        //Offset  Mask        Name                Factor      Unit
-        //0                   Temperature S1      1.0         °C
-        //1                   Temperature S1      256.0       °C
-        //2                   Temperature S2      1.0         °C
-        //3                   Temperature S2      256.0       °C
-        //4                   Temperature S3      1.0         °C
-        //5                   Temperature S3      256.0       °C
-        //6                   Temperature S4      1.0         °C
-        //7                   Temperature S4      256.0       °C
-        //8                   Pump Speed R1       1           %
-        //10                  Operating Hours R1  1           h
-        //11                  Operating Hours R1  256         h
-        //12                  Pump Speed R2       1           %
-        //14                  Operating Hours R2  1           h
-        //15                  Operating Hours R2  256         h
-        //16                  UnitType            1
-        //17                  System              1
-        //20          1       Sensor 1 defekt     1
-        //20          2       Sensor 2 defekt     1
-        //20          4       Sensor 3 defekt     1
-        //20          8       Sensor 4 defekt     1
-        //20                  Error Mask          1
-        //20                  Error Mask          256
-        //22                  Time                1
-        //23                  Time                256
-        //24                  Statusmask          1
-        //25                  Statusmask          256
-        //26                  Statusmask          65536
-        //27                  Statusmask          16777216
-        //28                  Heat Quantity       1           Wh
-        //29                  Heat Quantity       256         Wh
-        //30                  Heat Quantity       65536       Wh
-        //31                  Heat Quantity       16777216    Wh
-        //32                  SW-Version          0.01
-        //33                  SW-Version          2.56
-        //
-        // Each frame has 6 bytes, FLength
-        // byte 1 to 4 are data bytes -> MSB of each bytes
-        // byte 5 is a septet and contains MSB of bytes 1 to 4, FSeptet
-        // byte 6 is a checksum
-        // FOffset 10, Offset start of Frames
-   //*******************  Frame 1  *******************
-#if DEBUG
-        Serial.println("---------------");
-        Serial.println("Now decoding for DeltaSol CS Plus 0x2211");
-        Serial.println("---------------");
-#endif
-        //*******************  Frame 1  *******************
-        F = FOffset;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-        }
-        //*******************  Frame 2  *******************
-        F = FOffset + FLength;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-        sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
-        }
-        //*******************  Frame 3  *******************
-        F = FOffset + FLength * 2;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        Relay1 = (Buffer[F]);
-        OperatingHoursRelay1 = Buffer[F + 2] + Buffer[F + 3]*256; //Numero de horas rele 1
-        ErrorMask = Buffer[F + 2];
-        Scheme = Buffer[F + 3];
-        }
-        //*******************  Frame 4  *******************
-        F = FOffset + FLength * 3;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        Relay2 = (Buffer[F]);
-        OperatingHoursRelay2 = Buffer[F + 2] + Buffer[F + 3]*256;
-        }
-        //*******************  Frame 5  *******************
-        F = FOffset + FLength * 4;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        }
-        //*******************  Frame 6  *******************
-        F = FOffset + FLength * 5;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        SystemTime = Buffer[F + 3] << 8 | Buffer[F + 2];
-        }
-        //*******************  Frame 7  *******************
-        F = FOffset + FLength * 6;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        }
-        //*******************  Frame 8  *******************
-        F = FOffset + FLength * 7;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-        Septet = Buffer[F + FSeptet];
-        InjectSeptet(Buffer, F, 4);
-        HeatQuantity = Buffer[F] + Buffer[F + 1]*256 + Buffer[F + 2]*65536 + Buffer[F + 3]*16777216;
-        }
-        ///******************* End of frames ****************
-
-      } // end 0x2211 DeltaSol CS Plus
-	    
-	else if (Source_address == 0x7311){ // Deltasol M, alias Roth B/W Komfort
+      else if (Source_address == 0x7311){ // Deltasol M, alias Roth B/W Komfort
         // 6 temp frames, 12 sensors
         // Only decoding the first four due to library limitations
         unsigned int frame = 0;
@@ -758,65 +667,236 @@ bool VBUSDecoder::vBusRead()
         // Frame 16: Errors / warnings
         // Frame 17: Version, revision / time
 #ifdef DEBUG
-        Serial.println("Got values");
-        Serial.print("Temperature: ");
+        Serial.println(F("Got values"));
+        Serial.print(F("Temperature: "));
         Serial.print(sensor1Temp);
-        Serial.print(", ");
+        Serial.print(F(", "));
         Serial.print(sensor2Temp);
-        Serial.print(". Relays: ");
+        Serial.print(F(". Relays: "));
         Serial.print(Relay1);
-        Serial.print(", ");
+        Serial.print(F(", "));
         Serial.println(Relay2);
 #endif
+      } else if( Source_address == 0x1001 ){ //DelatSol SLT
+
+
+// Frame info for the Resol ConergyDT5
+        // check VBusprotocol specification for other products
+
+        // This library is made for the ConergyDT5 (0x3271)
+
+        //Offset  Size    Mask    Name                    Factor  Unit
+        //0
+        //1
+        //2
+        //3
+        //4       2               Temperature sensor 1    0.1     &#65533;C
+        //6       2               Temperature sensor 2    0.1     &#65533;C
+        //8       2               Temperature sensor 3    0.1     &#65533;C
+        //10       2               Temperature sensor 4    0.1     &#65533;C
+        // ??
+        // ??
+
+        //8       1               Pump speed pump         1       1
+        //9       1               Pump speed pump 2       1
+        //10      1               Relay mask              1
+        //11      1               Error mask              1
+        //12      2               System time             1
+        //14      1               Scheme                  1
+        //15      1       1       Option PostPulse        1
+        //15      1       2       Option thermostat       1
+        //15      1       4       Option HQM              1
+        //16      2               Operating hours relay 1 1
+        //18      2               Operating hours relay 2 1
+        //20      2               Heat quantity           1       Wh
+        //22      2               Heat quantity           1000    Wh
+        //24      2               Heat quantity           1000000 Wh
+        //26      2               Version 0.01
+        //
+        // Each frame has 6 bytes
+        // byte 1 to 4 are data bytes -> MSB of each bytes
+        // byte 5 is a septet and contains MSB of bytes 1 to 4
+        // byte 6 is a checksum
+
+
+      
+
+
+      #if DEBUG
+        Serial.println(F("---------------"));
+        Serial.println(F("Now decoding for DeltaSol SLT 0x1001"));
+        Serial.println(F("---------------"));
+        Serial.println();
+      #endif
+
+
+      #if DEBUG
+        Serial.println(F("Injection des Septets"));
+      #endif
+      for(uint8_t i=0;i<Framecnt;i++){
+        F = FOffset + FLength * i;
+        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+          Septet = Buffer[F + FSeptet];
+          InjectSeptet(Buffer, F, 4);
+        }
+        Buffer[F+5]=VBus_CalcCrc(Buffer, F, 5);
       }
-      else if (Source_address == 0x4211)
-      {
-#if DEBUG
-        Serial.println("---------------");
-        Serial.println("Now decoding for 0x4211  SKSC1/2");
-        Serial.println("---------------");
-#endif
+      
+
+      // recherche d'info
+
+        for(uint8_t i=0;i<Framecnt;i++){
+          F = FOffset + FLength * i;
+          #if DEBUG
+          printFrame(i);
+          #endif
+
+          if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+            F = FOffset + FLength * i;
+            if( i == 1 ){ // ****** Frame 2 *******
+              // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+              sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+              // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+              sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }
+            else if( i == 2 ){ // ****** Frame 3 *******
+              sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	            sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }
+            else if( i == 7 ){ // ****** Frame 8 *******
+              Relay1 = Buffer[F+2];
+              Relay2 = Buffer[F+3];
+              relayPump = (Relay1 != 0);
+              relay3WayValve = (Relay2 != 0);
+
+            }
+          }
+        }
 
 
-        //*******************  Frame 1  *******************
-        F = FOffset;
+     
+
+
+
+
+      #if DEBUG
+        Serial.print(F("=============="));
+      #endif
+      } // end DeltaSol SLT
+      else if( Source_address == 0x1121 ){ //DelatSol CS/2
+
+
+// Frame info for the Resol ConergyDT5
+        // check VBusprotocol specification for other products
+
+        // This library is made for the ConergyDT5 (0x3271)
+
+        //Offset  Size    Mask    Name                    Factor  Unit
+        //0       2               Temperature sensor 1    0.1     &#65533;C
+        //2       2               Temperature sensor 2    0.1     &#65533;C
+        //4       2               Temperature sensor 3    0.1     &#65533;C
+        //6       2               Temperature sensor 4    0.1     &#65533;C
+        // ??
+        // ??
+        //
+        // Each frame has 6 bytes
+        // byte 1 to 4 are data bytes -> MSB of each bytes
+        // byte 5 is a septet and contains MSB of bytes 1 to 4
+        // byte 6 is a checksum
+
+
+      
+
+
+      #if DEBUG
+        Serial.println(F("---------------"));
+        Serial.println(F("Now decoding for DeltaSol CS/2 0x1121"));
+        Serial.println(F("---------------"));
+        Serial.println();
+      #endif
+
+
+      #if DEBUG
+        Serial.println(F("Injection des Septets"));
+      #endif
+      for(uint8_t i=0;i<Framecnt;i++){
+        F = FOffset + FLength * i;
         if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
           Septet = Buffer[F + FSeptet];
           InjectSeptet(Buffer, F, 4);
-          // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
-          sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-          // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
-          sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
         }
-        //*******************  Frame 2  *******************
-        F = FOffset + FLength;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-          Septet = Buffer[F + FSeptet];
-          InjectSeptet(Buffer, F, 4);
-          sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
-          sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+        Buffer[F+5]=VBus_CalcCrc(Buffer, F, 5);
+      }
+      
+
+      // recherche d'info
+
+        for(uint8_t i=0;i<Framecnt;i++){
+          F = FOffset + FLength * i;
+          #if DEBUG
+          printFrame(i);
+          #endif
+
+          if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+            F = FOffset + FLength * i;
+            
+            if( i == 0 ){ // ****** Frame 2 *******
+              // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+              sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+              // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+              sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }
+            else if( i == 1 ){ // ****** Frame 3 *******
+              sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	            sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }/*
+            else if( i == 7 ){ // ****** Frame 8 *******
+              Relay1 = Buffer[F+2];
+              Relay2 = Buffer[F+3];
+              relayPump = (Relay1 != 0);
+              relay3WayValve = (Relay2 != 0);
+
+            }*/
+          }
         }
-        //*******************  Frame 3  *******************
-        // store Pump data in relay as it gets data from there.. dont know why? 
-        // Relay1 is then the pump speed in %
-        F = FOffset + FLength * 2;
-        if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
-          Septet = Buffer[F + FSeptet];
-          InjectSeptet(Buffer, F, 4);
-          Relay1 = (Buffer[F]);
-          Relay2 = (Buffer[F + 1]);
-          RelaisMask = Buffer[F + 2];
-          ErrorMask = Buffer[F + 3];
-        }
-      }  
+
+
+     
+
+
+
+
+      #if DEBUG
+        Serial.print(F("=============="));
+      #endif
+      }
 
       /* Add your own controller ID and code in the if statement below and uncomment
         else if (Source_address ==0x????){
         }
       */
 
-      else
-      {
+      else {
+        
+        #ifdef DEBUG
+
+        for(uint8_t i=0;i<Framecnt;i++){
+          if( printFrame(i) ){
+            if( i == 0 ){
+              F = FOffset;
+              // 'collector1' Temperatur Sensor 1, 15 bits, factor 0.1 in C
+              sensor1Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+              // 'store1' Temperature sensor 2, 15 bits, factor 0.1 in C
+              sensor2Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }
+            else if( i == 1 ){
+              F = FOffset + FLength;
+              sensor3Temp = calcTemp(Buffer[F + 1], Buffer[F]);
+	            sensor4Temp = calcTemp(Buffer[F + 3], Buffer[F + 2]);
+            }
+          }
+        }
+        #else
 
         // Default temp 1-4 extraction
         // For most Resol controllers temp 1-4 are always available, so
@@ -859,6 +939,8 @@ bool VBUSDecoder::vBusRead()
 	}
         ///******************* End of frames ****************
 
+        #endif
+
       } //End of Default temp 1-4 extraction
 
       if (sensor1Temp > sensor1TempMax)
@@ -877,7 +959,7 @@ bool VBUSDecoder::vBusRead()
 } // end VBusRead()
 
 // This function converts 2 data bytes to a temperature value.
-float VBUSDecoder::calcTemp(int Byte1, int Byte2)
+int16_t VBUSDecoder::calcTemp(int Byte1, int Byte2)
 {
   int v;
   v = Byte1 << 8 | Byte2; //bit shift 8 to left, bitwise OR
@@ -890,27 +972,86 @@ float VBUSDecoder::calcTemp(int Byte1, int Byte2)
   if (Byte1 == 0xFF)
     v = v - 0x10000;
 
-  if (v == SENSORNOTCONNECTED)
-    v = 0;
-
-  return (float)((float)v * 0.1);
+  return v;
 }
 
 // Prints the hex values of the char array sent to it.
 void VBUSDecoder::PrintHex8(unsigned char *data, uint8_t length) // prints 8-bit data in hex with leading zeroes
 {
 #if DEBUG
-  Serial.print("0x");
+  Serial.print(F("0x"));
   for (int i = 0; i < length; i++)
   {
     if (data[i] < 0x10)
     {
-      Serial.print("0");
+      Serial.print('0');
     }
     Serial.print(data[i], HEX);
-    Serial.print(" ");
+    Serial.print(' ');
   }
 
   Serial.println();
 #endif
+}
+
+
+bool VBUSDecoder::printFrame(uint8_t frameNum){
+  uint8_t F = FOffset + FLength * frameNum;
+
+  float sensorTemp;
+  Serial.print('#');
+  Serial.print(frameNum);
+  Serial.print(F("    "));
+
+
+  if ( Buffer[F + 5] == VBus_CalcCrc(Buffer, F, 5) ) { // CRC ok
+    Serial.print(F("  ("));
+    for(uint8_t i=0; i<4;i++){
+      Serial.print(Buffer[F+i],DEC);
+      Serial.print(F("  "));
+    }
+    Serial.print(')');
+
+    Serial.print(F("    "));
+
+    Serial.print(F("0x"));
+    Serial.print(*(uint16_t*)&Buffer[F], HEX);
+    Serial.print(F("  "));
+    Serial.print(*(uint16_t*)&Buffer[F+2], HEX);
+
+    Serial.print(F("  ("));
+    Serial.print(*(uint16_t*)&Buffer[F], DEC);
+    Serial.print(F("  "));
+    Serial.print(*(uint16_t*)&Buffer[F+2], DEC);
+    Serial.print(')');
+
+    Serial.print(F("    T|"));
+
+    sensorTemp = calcTemp(Buffer[F + 1], Buffer[F]);
+    Serial.print(floatTempFrom10e(sensorTemp));
+    Serial.print(F("°C"));
+    Serial.print(F("  "));
+
+    sensorTemp = calcTemp(Buffer[F + 1 + 2], Buffer[F+2]);
+    Serial.print(floatTempFrom10e(sensorTemp));
+    Serial.print(F("°C"));
+
+
+
+    Serial.print(F("      "));
+    Serial.print(F("0x"));
+
+    Serial.print(*(uint32_t*)&Buffer[F], HEX);
+
+    Serial.print(F("  ("));
+    Serial.print(*(uint32_t*)&Buffer[F], DEC);
+    Serial.print(')');
+
+    Serial.println();
+    
+    return true;
+  } else {
+    Serial.println(F("erreur CRC"));
+    return false;
+  }
 }
