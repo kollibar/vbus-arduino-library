@@ -250,11 +250,10 @@ bool VBUSDecoder::vBusRead(long timerInterval)
 
   bool start = true;
   bool stop = false;
-  bool quit = false;
   int Bufferlength = 0;
   unsigned long lastTimeTimer = millis();
 
-  while ((!stop) and (!quit)){
+  while ((!stop)){
     if (Serial1.available()){
       c = Serial1.read();
 
@@ -286,7 +285,6 @@ bool VBUSDecoder::vBusRead(long timerInterval)
       }
     }
     if ((timerInterval > 0) && (millis() - lastTimeTimer > timerInterval)) {
-      quit = true;
 #if DEBUG
       Serial.print(F("Timeout: "));
       Serial.println(lastTimeTimer);
@@ -297,32 +295,31 @@ bool VBUSDecoder::vBusRead(long timerInterval)
 
   lastTimeTimer = 0;
 
-  if (!quit) {
-    Destination_address = Buffer[2] << 8;
-    Destination_address |= Buffer[1];
-    Source_address = Buffer[4] << 8;
-    Source_address |= Buffer[3];
-    ProtocolVersion = (Buffer[5] >> 4) + (Buffer[5] & (1 << 15));
+  Destination_address = Buffer[2] << 8;
+  Destination_address |= Buffer[1];
+  Source_address = Buffer[4] << 8;
+  Source_address |= Buffer[3];
+  ProtocolVersion = (Buffer[5] >> 4) + (Buffer[5] & (1 << 15));
 
-    Command = Buffer[7] << 8;
-    Command |= Buffer[6];
-    Framecnt = Buffer[8];
-    Checksum = Buffer[9];
+  Command = Buffer[7] << 8;
+  Command |= Buffer[6];
+  Framecnt = Buffer[8];
+  Checksum = Buffer[9]; 
 #if DEBUG
-    Serial.println(F("---------------"));
-    Serial.print(F("Destination: "));
-    Serial.println(Destination_address, HEX);
-    Serial.print(F("Source: "));
-    Serial.println(Source_address, HEX);
-    Serial.print(F("Protocol Version: "));
-    Serial.println(ProtocolVersion);
-    Serial.print(F("Command: "));
-    Serial.println(Command, HEX);
-    Serial.print(F("Framecount: "));
-    Serial.println(Framecnt);
-    Serial.print(F("Checksum: "));
-    Serial.println(Checksum);
-    Serial.println(F("---------------"));
+  Serial.println(F("---------------"));
+  Serial.print(F("Destination: "));
+  Serial.println(Destination_address, HEX);
+  Serial.print(F("Source: "));
+  Serial.println(Source_address, HEX);
+  Serial.print(F("Protocol Version: "));
+  Serial.println(ProtocolVersion);
+  Serial.print(F("Command: "));
+  Serial.println(Command, HEX);
+  Serial.print(F("Framecount: "));
+  Serial.println(Framecnt);
+  Serial.print(F("Checksum: "));
+  Serial.println(Checksum);
+  Serial.println(F("---------------"));
 
 #endif
     // Only analyse Commands 0x100 = Packet Contains data for slave
@@ -931,9 +928,8 @@ bool VBUSDecoder::vBusRead(long timerInterval)
         sensor4TempMax = sensor4Temp;
 
     } // end if command 0x0100
-  }   // end !quit
 
-  return !quit;
+  return true;
 } // end VBusRead()
 
 // This function converts 2 data bytes to a temperature value.
