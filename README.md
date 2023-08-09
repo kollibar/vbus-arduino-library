@@ -1,7 +1,3 @@
-This library is no longer being maintained. I've switched to using https://esphome.io/components/vbus.html . Note though that the smt based pcb berger files on this page can still be used with the vbus project.
-
-
-
 # vbus-arduino-library
 Library to allow your program to readout of VBus interface Protocol 1.0 by Arduino.
 
@@ -25,6 +21,8 @@ Currently supports the following controllers:
 * Deltasol M, also rebranded as Roth B/W Komfort (0x7311)
 * DeltaSol CS Plus (0x2211)
 * DeltaSol BS Plus (0x4211)
+* DeltaSol CS/2 (0x1121)  (work in progress)
+* DelatSol SLT (0x1001)  (work in progress)
 
 If it does not find any of the supported controllers, it will try to decode the first 2 frames which usually contain Temp 1 to 4.
 
