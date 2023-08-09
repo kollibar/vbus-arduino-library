@@ -42,7 +42,7 @@ class VBUSDecoder
 	float getS3TempFloat();
 	float getS4TempFloat();
 
-	bool readSensor();
+	bool readSensor(long timerInterval=(2*60*1000));
 	bool getP1Status();
 	bool getP2Status();
 	bool getAlertStatus();
@@ -115,10 +115,9 @@ class VBUSDecoder
 	unsigned char Septet;
 	unsigned char Checksum;
 	long lastTimeTimer;
-	long timerInterval;
 
 	void clearMaxValues();
-	bool vBusRead();
+	bool vBusRead(long timerInterval=0);
 	int16_t calcTemp(int Byte1, int Byte2);
 	void InjectSeptet(unsigned char *Buffer, int Offset, int Length);
 	void PrintHex8(unsigned char *data, uint8_t length); // prints 8-bit data in hex with leading zeroes

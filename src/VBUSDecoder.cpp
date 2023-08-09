@@ -141,11 +141,11 @@ String VBUSDecoder::getSystemTime()
   return toReturn;
 }
 
-bool VBUSDecoder::readSensor()
+bool VBUSDecoder::readSensor(long timerInterval)
 {
 
-  if (vBusRead())
-  {
+  bool r=vBusRead(timerInterval);
+  if (r) {
 #if DEBUG
     Serial.println(F("------Decoded VBus data------"));
     Serial.print(F("Destination: "));
@@ -179,7 +179,6 @@ bool VBUSDecoder::readSensor()
     Serial.println(SystemNotification, DEC);
     Serial.println(F("------END------"));
 #endif
-
   } //end VBusRead
 
   /*
@@ -192,38 +191,27 @@ bool VBUSDecoder::readSensor()
   */
 
   // Convert relay value to On or Off.
-  if (Relay1 != 0x00)
-  {
+  if (Relay1 != 0x00){
     relayPump = true;
-  }
-  else
-  {
+  } else {
     relayPump = false;
   }
 
-  if (Relay2 == 0x64)
-  {
+  if (Relay2 == 0x64){
     relay3WayValve = true;
-  }
-  else if (Relay2 == 0x00)
-  {
+  } else if (Relay2 == 0x00) {
     relay3WayValve = false;
-  }
-  else
-  {
+  } else {
     relay3WayValve = false;
   }
 
-  if (SystemNotification != 0x00 || ErrorMask != 0x00) // Not really sure what ErrorMask is, treating as system alert.
-  {
+  if (SystemNotification != 0x00 || ErrorMask != 0x00) { // Not really sure what ErrorMask is, treating as system alert.
     SystemAlert = true;
-  }
-  else
-  {
+  } else {
     SystemAlert = false;
   }
 
-  return true;
+  return r;
 }
 
 // The following is needed for decoding the data
@@ -254,7 +242,7 @@ unsigned char VBUSDecoder::VBus_CalcCrc(unsigned char *Buffer, int Offset, int L
 
 // The following function reads the data from the bus and converts it all
 // depending on the used VBus controller.
-bool VBUSDecoder::vBusRead()
+bool VBUSDecoder::vBusRead(long timerInterval)
 {
   int F;
   char c;
@@ -266,60 +254,50 @@ bool VBUSDecoder::vBusRead()
   int Bufferlength = 0;
   unsigned long lastTimeTimer = millis();
 
-  while ((!stop) and (!quit))
-  {
-    if (Serial1.available())
-    {
+  while ((!stop) and (!quit)){
+    if (Serial1.available()){
       c = Serial1.read();
 
-      if (c == sync1)
-      {
+      if (c == sync1){
 
 #if DEBUG
 // Serial.println(F("Sync found"));
 #endif
 
-        if (start)
-        {
+        if (start){
           start = false;
           Bufferlength = 0;
           //#if DEBUG
           //#endif
-        }
-        else
-        {
-          if (Bufferlength < 20)
-          {
+        } else {
+          if (Bufferlength < 20) {
             lastTimeTimer = millis();
             Bufferlength = 0;
-          }
-          else
+          } else
             stop = true;
         }
       }
 #if DEBUG
 // Serial.println(c, HEX);
 #endif
-      if ((!start) and (!stop))
-      {
+      if ((!start) and (!stop)) {
         Buffer[Bufferlength] = c;
         Bufferlength++;
       }
     }
-    if ((timerInterval > 0) && (millis() - lastTimeTimer > timerInterval))
-    {
+    if ((timerInterval > 0) && (millis() - lastTimeTimer > timerInterval)) {
       quit = true;
 #if DEBUG
-//   Serial.print(F("Timeout: "));
-//   Serial.println(lastTimeTimer);
+      Serial.print(F("Timeout: "));
+      Serial.println(lastTimeTimer);
 #endif
+      return false;
     }
   }
 
   lastTimeTimer = 0;
 
-  if (!quit)
-  {
+  if (!quit) {
     Destination_address = Buffer[2] << 8;
     Destination_address |= Buffer[1];
     Source_address = Buffer[4] << 8;
