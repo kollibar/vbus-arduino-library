@@ -32,26 +32,26 @@ class VBUSDecoder
 {
   public:
 	bool initialise();
-	int16_t getS1Temp();
-	int16_t getS2Temp();
-	int16_t getS3Temp();
-	int16_t getS4Temp();
+	int16_t getS1Temp() const;
+	int16_t getS2Temp() const;
+	int16_t getS3Temp() const;
+	int16_t getS4Temp() const;
 
-	float getS1TempFloat();
-	float getS2TempFloat();
-	float getS3TempFloat();
-	float getS4TempFloat();
+	float getS1TempFloat() const;
+	float getS2TempFloat() const;
+	float getS3TempFloat() const;
+	float getS4TempFloat() const;
 
 	bool readSensor(long timerInterval=(2*60*1000));
-	bool getP1Status();
-	bool getP2Status();
-	bool getAlertStatus();
-	int getP1Speed();
-	int getP2Speed();
-	int getP1OperatingHours();
-	int getP2OperatingHours();
-	int getScheme();
-	String getSystemTime();
+	bool getP1Status() const;
+	bool getP2Status() const;
+	bool getAlertStatus() const;
+	int getP1Speed() const;
+	int getP2Speed() const;
+	int getP1OperatingHours() const;
+	int getP2OperatingHours() const;
+	int getScheme() const;
+	String getSystemTime() const;
 
 	bool printFrame(uint8_t frameNum);
 

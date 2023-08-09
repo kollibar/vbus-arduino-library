@@ -26,7 +26,7 @@ float floatTempFrom10e(int16_t temp10e){
 
 
 // Clear all maximum values
-void VBUSDecoder::clearMaxValues()
+void VBUSDecoder::clearMaxValues() 
 {
   sensor1TempMax = 0;
   sensor2TempMax = 0;
@@ -42,91 +42,91 @@ bool VBUSDecoder::initialise()
   return true;
 } // end void initialise()
 
-int16_t VBUSDecoder::getS1Temp()
+int16_t VBUSDecoder::getS1Temp() const
 {
   return sensor1Temp;
 }
 
-int16_t VBUSDecoder::getS2Temp()
+int16_t VBUSDecoder::getS2Temp() const
 {
   return sensor2Temp;
 }
 
-int16_t VBUSDecoder::getS3Temp()
+int16_t VBUSDecoder::getS3Temp() const
 {
   return sensor3Temp;
 }
 
-int16_t VBUSDecoder::getS4Temp()
+int16_t VBUSDecoder::getS4Temp() const
 {
   return sensor4Temp;
 }
 
-float VBUSDecoder::getS1TempFloat()
+float VBUSDecoder::getS1TempFloat() const
 {
   return floatTempFrom10e(sensor1Temp);
 }
 
-float VBUSDecoder::getS2TempFloat()
+float VBUSDecoder::getS2TempFloat() const
 {
   return floatTempFrom10e(sensor2Temp);
 }
 
-float VBUSDecoder::getS3TempFloat()
+float VBUSDecoder::getS3TempFloat() const
 {
   return floatTempFrom10e(sensor3Temp);
 }
 
-float VBUSDecoder::getS4TempFloat()
+float VBUSDecoder::getS4TempFloat() const
 {
   return floatTempFrom10e(sensor4Temp);
 }
 
-bool VBUSDecoder::getP1Status()
+bool VBUSDecoder::getP1Status() const
 {
   return relayPump;
 }
 
-bool VBUSDecoder::getP2Status()
+bool VBUSDecoder::getP2Status() const
 {
   return relay3WayValve;
 }
 
-int VBUSDecoder::getP1Speed()
+int VBUSDecoder::getP1Speed() const
 {
 
   return String(Relay1, DEC).toInt();
 }
 
-int VBUSDecoder::getP2Speed()
+int VBUSDecoder::getP2Speed() const
 {
 
   return String(Relay2, DEC).toInt();
 }
-int VBUSDecoder::getP1OperatingHours()
+int VBUSDecoder::getP1OperatingHours() const
 {
 
   return String(OperatingHoursRelay1, DEC).toInt();
 }
 
-int VBUSDecoder::getP2OperatingHours()
+int VBUSDecoder::getP2OperatingHours() const
 {
 
   return String(OperatingHoursRelay2, DEC).toInt();
 }
 
-int VBUSDecoder::getScheme()
+int VBUSDecoder::getScheme() const
 {
 
   return String(Scheme, DEC).toInt();
 }
 
-bool VBUSDecoder::getAlertStatus()
+bool VBUSDecoder::getAlertStatus() const
 {
   return SystemAlert;
 }
 
-String VBUSDecoder::getSystemTime()
+String VBUSDecoder::getSystemTime() const
 {
 
   int hours = SystemTime / 60;
