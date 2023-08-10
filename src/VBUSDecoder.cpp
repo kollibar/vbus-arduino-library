@@ -886,6 +886,6 @@ const __FlashStringHelper * VBUSDecoder::getNom(uint16_t source_adresse){
     case 0x1001:
       return (const __FlashStringHelper*)NOM_0x1001;
     default:
-      return (const __FlashStringHelper*)NOM_UNKNOW;
+      return (const __FlashStringHelper*)NOM_UNKONW;
   }  
 }
