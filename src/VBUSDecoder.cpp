@@ -882,10 +882,10 @@ void VBUSDecoder::decodingForDefault(uint8_t bufferPos, uint8_t frameNum){
 const __FlashStringHelper * VBUSDecoder::getNom(uint16_t source_adresse){
   switch( Source_address){
     case 0x1121:
-      return NOM_0x1121;
+      return (const __FlashStringHelper*)NOM_0x1121;
     case 0x1001:
-      return NOM_0x1001:
+      return (const __FlashStringHelper*)NOM_0x1001:
     default:
-      return NOM_UNKNOW:
+      return (const __FlashStringHelper*)NOM_UNKNOW:
   }  
 }
