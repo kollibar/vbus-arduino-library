@@ -12,7 +12,7 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
 #include "VBUSDecoder.h"
-#define DEBUG 
+#define DEBUG 0
 
 /**
  * renvoi une température donnée sous forme de int 1/10e de degrée en float
