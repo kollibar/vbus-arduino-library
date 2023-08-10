@@ -20,6 +20,8 @@
 #include <AltSoftSerial.h>
 #endif
 
+#include "VBUSlisting.h"
+
 // Settings for the VBus decoding
 #define FLength 6				// Framelength
 #define FOffset 10				// Offset start of Frames
@@ -122,6 +124,13 @@ class VBUSDecoder
 	void InjectSeptet(unsigned char *Buffer, int Offset, int Length);
 	void PrintHex8(unsigned char *data, uint8_t length); // prints 8-bit data in hex with leading zeroes
 	unsigned char VBus_CalcCrc(unsigned char *Buffer, int Offset, int Length);
+
+
+	void decodingFor0x1121(uint8_t bufferPos, uint8_t frameNum);
+	void decodingFor0x1001(uint8_t bufferPos, uint8_t frameNum);
+	void decodingForDefault(uint8_t bufferPos, uint8_t frameNum);
+
+	const __FlashStringHelper* getNom(uint16_t source_adresse);
 };
 
 #endif
